@@ -1,0 +1,229 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+
+
+class Ship {
+  int sl=3;
+  int sh=1;
+  int rot;
+  int speed;
+  int stock;
+  int sx;
+  int sy;
+  
+    public:
+    
+    void SetSx (int tsx){
+        sx=tsx;
+    }
+    
+    void SetSy (int tsy){
+        sy=tsy;
+    }
+    
+    int GetSx (){
+        return sx;
+    } 
+    
+    int GetSy (){
+        return sy;
+    } 
+    
+    void SetRotation (int trot){
+        rot=trot;
+    }  
+
+    int GetRotation (){
+        return rot;
+    }    
+  
+    void SetSpeed (int tspeed){
+        speed=tspeed;
+    }  
+
+    int GetSpeed (){
+        return speed;
+    }    
+      
+    void SetStock (int tstock){
+        stock=tstock;
+    }  
+
+    int GetStock (){
+        return stock;
+    }    
+    
+};
+
+
+
+class Map {
+  
+    int w=23;
+    int h=21;
+    int **BArray;
+    int ArraySize;
+    
+    
+    public:  
+    // Создание и инициализация массива под список бочек        
+    void SetArray (int tsc, int tentc){
+        ArraySize=tentc-tsc-tsc;
+        BArray = new int * [ArraySize]; 
+        for (int i = 0; i < ArraySize; ++i) {
+            BArray[i] = new int [5]; 
+        }
+    }    
+  
+    
+    
+    
+    
+    
+    // Метод добавления бочек      
+    void AddItem(int tBid, int tBx, int tBy, int tRum, int tType){
+          
+        for (int i = 0; i < ArraySize; ++i) {
+                BArray[i][0]=tBid;
+                BArray[i][1]=tBx;
+                BArray[i][2]=tBy;
+                BArray[i][3]=tRum;
+                // 1-Barrel -1-MINE
+                BArray[i][3]=tType;
+                //cerr << endl;
+            }
+      
+    }
+  
+  
+    //Поиск ближайшей бочки к к4ораблю
+    void FindNearestBarrel(Ship ship0){
+        //cerr << "in MinDis " << endl;
+        int minDis;
+        int minDisX;
+        int minDisY;
+        
+        int tsx=ship0.GetSx();
+        int tsy=ship0.GetSy();
+        for (int i = 0; i < ArraySize; i++) {
+            
+            //Проверка на тип бочка или мина 
+            if (BArray[i][5]==-1) {
+                cout << "FIRE " << BArray[i][1] << " " << BArray[i][2] << endl;
+            }
+            //cerr << "in array "<< i << " " << ArraySize << endl;
+            if (i==0) {
+                //cerr << "minDis calc "<< tsx << " " << BArray[i][1] << " "<< tsy << " " << BArray[i][2] << endl;
+                //cerr << "minDis calc "<< pow(BArray[i][1]-tsx,2.0) << " " << BArray[i][2]-tsy << endl;
+                minDis=sqrt(pow(BArray[i][1]-tsx, 2.0)+pow(BArray[i][2]-tsy,2.0));
+                minDisX=BArray[i][1];
+                minDisY=BArray[i][2];
+                cerr << "minDis 0 = "<< minDis << endl;
+            } else {
+                //cerr << "in i "<< i << endl;
+                if (minDis>(pow(BArray[i][1]-tsx, 2.0)+pow(BArray[i][2]-tsy,2.0))){
+                    cerr << "in array > "<< i << endl;
+                    minDis=sqrt(pow(BArray[i][1]-tsx, 2.0)+pow(BArray[i][2]-tsy,2.0));
+                    minDisX=BArray[i][1];
+                    minDisY=BArray[i][2];
+                }
+            }
+        }
+        cerr << "Min Dis " << minDis << " " << minDisX << " " << minDisY << endl;
+        cout << "MOVE " << minDisX << " " << minDisY << endl;
+        
+        
+        
+        
+        
+    }
+    
+    
+};
+
+
+
+
+
+
+
+
+
+
+
+int main()
+{
+    Map field;
+    // game loop
+    while (1) {
+        int myShipCount; // the number of remaining ships
+        Ship ship0;
+        Ship Eship;
+        cin >> myShipCount; cin.ignore();
+        int entityCount; // the number of entities (e.g. ships, mines or cannonballs)
+        cin >> entityCount; cin.ignore();
+        
+        field.SetArray(myShipCount, entityCount);
+        
+        for (int i = 0; i < entityCount; i++) {
+            int entityId;
+            string entityType;
+            int x;
+            int y;
+            int arg1;
+            int arg2;
+            int arg3;
+            int arg4;
+            cin >> entityId >> entityType >> x >> y >> arg1 >> arg2 >> arg3 >> arg4; cin.ignore();
+            
+            cerr << entityId << " " << entityType << " " << x << " " << y << " " << arg1 << " " << arg2 << " " << arg3 << " " << arg4 << endl;
+           
+           if (entityType=="SHIP"){
+               if (arg4==1){
+                  ship0.SetSx(x);
+                  ship0.SetSy(y);
+                  ship0.SetRotation(arg1);
+                  ship0.SetSpeed(arg2);
+                  ship0.SetStock(arg3);
+               }
+               if (arg4==0){
+                  Eship.SetSx(x);
+                  Eship.SetSy(y);
+                  Eship.SetRotation(arg1);
+                  Eship.SetSpeed(arg2);
+                  Eship.SetStock(arg3);
+               }
+           }
+           
+           if (entityType=="BARREL"){
+               field.AddItem(entityId, x,y,arg1,1);
+           }
+           
+           if (entityType=="MINE"){
+               field.AddItem(entityId, x,y,arg1,-1);
+           }
+            
+        }
+        
+        field.FindNearestBarrel(ship0);
+        //cout << "FIRE " << Eship.GetSx() << " " << Eship.GetSy() << endl;
+        
+        for (int i = 0; i < myShipCount; i++) {
+
+            // Write an action using cout. DON'T FORGET THE "<< endl"
+            // To debug: cerr << "Debug messages..." << endl;
+
+            //cout << "MOVE 1 7" << endl; // Any valid action, such as "WAIT" or "MOVE x y"
+            //cout << "MOVE 5 9" << endl; // Any valid action, such as "WAIT" or "MOVE x y"
+        }
+    }
+}
